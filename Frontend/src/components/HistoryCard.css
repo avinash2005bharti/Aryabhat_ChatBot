@@ -1,0 +1,119 @@
+/* =========================
+   HISTORY CARD
+========================= */
+
+.history-card{
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    width:100%;
+
+    padding:12px 15px;
+
+    border:1px solid #ddd;
+    border-radius:12px;
+
+    background:white;
+
+    cursor:pointer;
+
+    transition:all 0.25s ease;
+
+    overflow:hidden;
+}
+
+/* Hover Effect */
+
+.history-card:hover{
+
+    transform:translateX(4px);
+
+    box-shadow:0 4px 12px rgba(0,0,0,0.12);
+}
+
+
+/* Active Chat */
+
+.history-card.active{
+
+    background:#2563eb;
+
+    color:white;
+
+    border-color:#2563eb;
+}
+
+
+/* =========================
+   TITLE
+========================= */
+
+.history-title{
+
+    flex:1;
+
+    overflow:hidden;
+
+    white-space:nowrap;
+
+    text-overflow:ellipsis;
+}
+
+
+/* =========================
+   DELETE BUTTON
+========================= */
+
+.delete-btn{
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    width:28px;
+    height:28px;
+
+    margin-left:10px;
+
+    border:none;
+
+    background:transparent;
+
+    cursor:pointer;
+
+    opacity:0;
+
+    visibility:hidden;
+
+    flex-shrink:0;
+
+    transition:all 0.2s ease;
+}
+
+
+/* Show on Hover */
+
+.history-card:hover .delete-btn{
+
+    opacity:1;
+
+    visibility:visible;
+}
+
+
+/* Delete Hover */
+
+.delete-btn:hover{
+
+    transform:scale(1.15);
+}
+
+
+/* Active Card Delete Icon */
+
+.history-card.active .delete-btn{
+
+    color:white;
+}

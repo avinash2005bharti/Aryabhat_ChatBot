@@ -1,0 +1,20 @@
+.top-home-btn {
+  position: fixed;
+  top: 15px;
+  left: 45px;
+  z-index: 1000;
+  
+}
+
+.home-btn {
+  background: #111827;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.home-btn:hover {
+  background: #374151;
+}

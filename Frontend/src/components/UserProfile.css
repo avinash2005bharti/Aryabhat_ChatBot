@@ -1,0 +1,113 @@
+.user-profile-card{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:14px;
+
+    width:100%;
+
+    background:#f8fafc;
+
+    border:1px solid #e2e8f0;
+
+    border-radius:12px;
+}
+
+
+.user-profile-card:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Avatar */
+
+.avatar{
+
+    width:46px;
+
+    height:46px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-weight:700;
+
+    font-size:18px;
+
+    background:#2563eb;
+
+    color:white;
+
+    flex-shrink:0;
+}
+
+/* User Info */
+
+.user-info{
+
+    min-width:0;
+}
+
+.user-info h4{
+
+    font-size:14px;
+
+    font-weight:600;
+
+    color:#111827;
+
+    margin:0;
+
+    overflow:hidden;
+
+    white-space:nowrap;
+
+    text-overflow:ellipsis;
+}
+
+.user-info p{
+
+    font-size:12px;
+
+    color:#64748b;
+
+    margin-top:3px;
+
+    overflow:hidden;
+
+    white-space:nowrap;
+
+    text-overflow:ellipsis;
+}
+.settings-btn{
+
+    border:none;
+
+    background:transparent;
+
+    cursor:pointer;
+
+    font-size:18px;
+
+    color:#64748b;
+
+    transition:all 0.2s ease;
+}
+
+.settings-btn:hover{
+
+    color:#2563eb;
+
+    transform:rotate(90deg);
+}

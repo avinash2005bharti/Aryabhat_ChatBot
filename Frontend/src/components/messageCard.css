@@ -1,0 +1,317 @@
+/* ==========================
+   MESSAGE CARD BASE
+========================== */
+
+.message-card {
+
+    max-width: 80%;
+
+    padding: 12px 16px;
+
+    border-radius: 16px;
+
+    word-break: break-word;
+
+    font-size: 14px;
+
+    line-height: 1.7;
+
+    animation: fadeIn 0.2s ease;
+}
+
+/* ==========================
+   LIGHT MODE
+========================== */
+
+.user-card {
+
+    align-self: flex-end;
+
+    background: #2563eb;
+
+    color: white;
+
+    border-bottom-right-radius: 6px;
+}
+
+.ai-card {
+
+    align-self: flex-start;
+
+    background: #f3f4f6;
+
+    color: #111827;
+
+    border-bottom-left-radius: 6px;
+}
+
+/* ==========================
+   DARK MODE
+========================== */
+
+.user-card-dark {
+
+    align-self: flex-end;
+
+    background: #2AABEE;
+
+    color: white;
+
+    border-bottom-right-radius: 6px;
+}
+
+.ai-card-dark {
+
+    align-self: flex-start;
+
+    background: linear-gradient(
+        135deg,
+        #8B5CF6,
+        #EC4899
+    );
+
+    color: white;
+
+    border-bottom-left-radius: 6px;
+}
+
+/* ==========================
+   MARKDOWN CONTENT
+========================== */
+
+.message-card p {
+
+    margin: 8px 0;
+
+    font-size: 14px;
+}
+
+.message-card strong {
+
+    font-weight: 700;
+}
+
+.message-card em {
+
+    font-style: italic;
+}
+
+/* ==========================
+   HEADINGS
+========================== */
+
+.message-card h1 {
+
+    font-size: 22px;
+
+    margin: 12px 0;
+
+    font-weight: 700;
+}
+
+.message-card h2 {
+
+    font-size: 18px;
+
+    margin: 10px 0;
+
+    font-weight: 700;
+}
+
+.message-card h3 {
+
+    font-size: 16px;
+
+    margin: 8px 0;
+
+    font-weight: 600;
+}
+
+/* ==========================
+   LISTS
+========================== */
+
+.message-card ul,
+.message-card ol {
+
+    padding-left: 20px;
+
+    margin: 10px 0;
+}
+
+.message-card li {
+
+    margin: 4px 0;
+}
+
+/* ==========================
+   BLOCKQUOTE
+========================== */
+
+.message-card blockquote {
+
+    border-left: 4px solid #3b82f6;
+
+    padding-left: 12px;
+
+    margin: 12px 0;
+
+    opacity: 0.9;
+}
+
+/* ==========================
+   INLINE CODE
+========================== */
+
+.message-card code {
+
+    font-family:
+        "Fira Code",
+        Consolas,
+        monospace;
+
+    font-size: 13px;
+}
+
+/* ==========================
+   CODE BLOCK
+========================== */
+
+.message-card pre {
+
+    margin: 12px 0;
+
+    border-radius: 12px;
+
+    overflow-x: auto;
+
+    font-size: 13px;
+}
+
+/* ==========================
+   TABLES
+========================== */
+
+.message-card table {
+
+    border-collapse: collapse;
+
+    width: 100%;
+
+    margin: 12px 0;
+}
+
+.message-card th,
+.message-card td {
+
+    border: 1px solid rgba(255,255,255,0.2);
+
+    padding: 8px;
+
+    text-align: left;
+}
+
+.message-card th {
+
+    font-weight: 600;
+}
+
+/* ==========================
+   COPY BUTTON
+========================== */
+
+.code-container {
+
+    position: relative;
+}
+
+.copy-btn {
+
+    position: absolute;
+
+    top: 10px;
+
+    right: 10px;
+
+    border: none;
+
+    background: rgba(255,255,255,0.15);
+
+    color: white;
+
+    padding: 6px 12px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-size: 12px;
+
+    z-index: 100;
+
+    transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+
+    background: rgba(255,255,255,0.25);
+}
+
+/* ==========================
+   LANGUAGE LABEL
+========================== */
+
+.code-language {
+
+    position: absolute;
+
+    top: 10px;
+
+    left: 12px;
+
+    color: #cbd5e1;
+
+    font-size: 11px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+
+    z-index: 100;
+}
+
+/* ==========================
+   LINKS
+========================== */
+
+.message-card a {
+
+    color: inherit;
+
+    text-decoration: underline;
+}
+
+
+/* ==========================
+   ANIMATION
+========================== */
+
+@keyframes fadeIn {
+
+    from {
+
+        opacity: 0;
+
+        transform: translateY(5px);
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform: translateY(0);
+    }
+}
+
+
+
