@@ -28,7 +28,7 @@ function initSocketServer(httpServer) {
 
     const io = new Server(httpServer, {
         cors: {
-            origin: 'http://localhost:5173',
+            origin: process.env.FRONTEND_URL, // Frontend URL from environment
             methods: ['GET','POST'],
             credentials: true
         }

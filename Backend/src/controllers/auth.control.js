@@ -118,6 +118,54 @@ return res.status(200).json({
 
 }
 
+// resend otp
+async function resendOTP(req, res) {
+
+    const { email } = req.body;
+
+    const user = await userModel.findOne({
+        email
+    });
+
+    if (!user) {
+
+        return res.status(404).json({
+            message: "User not found"
+        });
+
+    }
+
+    const otp = Math.floor(
+        100000 + Math.random() * 900000
+    ).toString();
+
+    user.emailVerificationOTP = otp;
+
+    user.emailVerificationExpire =
+        Date.now() + 10 * 60 * 1000;
+
+    await user.save();
+
+    await transporter.sendMail({
+
+        from: process.env.EMAIL,
+
+        to: email,
+
+        subject: "Aurora AI Verification OTP",
+
+        text: `Your OTP is ${otp}`
+
+    });
+
+    return res.status(200).json({
+
+        message: "OTP Sent Successfully"
+
+    });
+
+}
+
 /* =========================
 LOGIN USER
 ========================= */
@@ -305,6 +353,7 @@ forgotPassword,
 
 verifyResetOTP,
 
-resetPassword
+resetPassword,
+resendOTP
 
 };

@@ -5,7 +5,7 @@ import axios from 'axios'
 import './Login.css'
 import { toast } from "react-toastify";
 
-
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Backend URL from environment
 
 const Login = () => {
    const Navigate = useNavigate();
@@ -14,7 +14,7 @@ const Login = () => {
 
   const submitHandler = (e) => {  
     e.preventDefault();
-    axios.post("http://localhost:5000/api/auth/login", { email, password }
+    axios.post(`${BACKEND_URL}/api/auth/login`, { email, password }
       ,{
         withCredentials: true
       }

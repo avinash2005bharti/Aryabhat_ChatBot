@@ -60,3 +60,39 @@
 .otp-card button:hover {
   background: #1d4ed8;
 }
+.resend-btn{
+
+    width:100%;
+
+    margin-top:12px;
+
+    padding:12px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#2563eb;
+
+    color:white;
+
+    font-size:14px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:0.2s;
+}
+
+.resend-btn:hover:not(:disabled){
+
+    background:#1d4ed8;
+}
+
+.resend-btn:disabled{
+
+    background:#94a3b8;
+
+    cursor:not-allowed;
+}

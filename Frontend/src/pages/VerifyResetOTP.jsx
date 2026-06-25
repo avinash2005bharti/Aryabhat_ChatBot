@@ -4,6 +4,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "./VerifyEmail.css";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Backend URL from environment
+
 const VerifyResetOTP = () => {
 
 
@@ -20,7 +22,7 @@ const submitHandler = async () => {
     try {
 
         const response = await axios.post(
-            "http://localhost:5000/api/auth/verify-reset-otp",
+            `${BACKEND_URL}/api/auth/verify-reset-otp`,
             {
                 email,
                 otp

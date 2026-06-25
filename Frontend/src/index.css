@@ -1,0 +1,476 @@
+/* ===========================
+	 Appended responsive CSS
+	 - Breakpoints: 1024px, 768px, 480px
+	 - Additive overrides only (no JS changes)
+	 =========================== */
+
+/* Global responsive adjustments */
+@media (max-width: 1024px) {
+	/* Global containment + prevent horizontal scroll on laptop/tablet */
+	html, body {
+		box-sizing: border-box;
+		-webkit-text-size-adjust: 100%;
+		overflow-x: hidden;
+	}
+	*, *::before, *::after { box-sizing: inherit; }
+
+	/* Generic containers */
+	.app, .main, .container, .content, #root {
+		max-width: 100%;
+		width: 100%;
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	/* Navbar / header */
+	.navbar, .nav, header, .topbar {
+		align-items: center;
+		padding-left: 12px;
+		padding-right: 12px;
+	}
+	.navbar .logo, .nav .brand { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+	/* Sidebar: adapt to narrower screens but keep toggle semantics intact */
+	.sidebar, .SideBar, .side-bar {
+		position: relative;
+		width: 260px;
+		min-width: 0;
+		flex: 0 0 260px;
+		transition: transform .22s ease, width .22s ease;
+	}
+	/* Common open states preserved (additive overrides for possible classes) */
+	.sidebar.open, .sidebar.active, .sidebar.show,
+	.SideBar.open, .SideBar.active, .SideBar.show,
+	.side-bar.open, .side-bar.active, .side-bar.show {
+		transform: translateX(0);
+	}
+	/* When collapsed by JS, ensure it's visually hidden but accessible */
+	.sidebar.collapsed, .SideBar.collapsed, .side-bar.collapsed {
+		width: 0;
+		flex: 0 0 0;
+		overflow: hidden;
+	}
+
+	/* Main content should flex to fill remaining width */
+	.main, .content-wrapper, .page-content {
+		width: 100%;
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	/* Chat layout adjustments */
+	.chat, .chat-container, .Chat, .chat-window {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		min-height: 60vh;
+	}
+	.messages, .message-list {
+		width: 100%;
+		max-width: 100%;
+		overflow-y: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+	.message, .message-box, .message-card, .msg {
+		word-break: break-word;
+		white-space: pre-wrap;
+		max-width: calc(100% - 84px); /* leave room for avatars */
+	}
+	.message .text, .message-text, .msg-text { word-wrap: break-word; }
+
+	/* Chat input */
+	.chat-input, .ChatInput, .input-area {
+		width: 100%;
+		padding: 10px;
+		box-sizing: border-box;
+	}
+	.chat-input .controls, .input-area .controls {
+		gap: 8px;
+	}
+
+	/* Avatars & icons */
+	.avatar, .user-avatar, .profile-pic, img.avatar, .avatar img {
+		max-width: 48px;
+		width: auto;
+		height: auto;
+	}
+
+	/* Buttons: make touch friendly */
+	button, .btn, .button {
+		min-height: 44px;
+		padding: 10px 14px;
+		touch-action: manipulation;
+	}
+
+	/* Forms: constrained & centered for auth/settings pages */
+	form, .auth-form, .login-form, .register-form, .settings-form {
+		max-width: 520px;
+		margin-left: auto;
+		margin-right: auto;
+		width: 100%;
+		padding-left: 8px;
+		padding-right: 8px;
+	}
+
+	/* Headings scale */
+	h1 { font-size: 2rem; line-height: 1.15; }
+	h2 { font-size: 1.45rem; line-height: 1.2; }
+	h3 { font-size: 1.15rem; }
+
+	/* History / Card components */
+	.history-card, .HistoryCard, .card {
+		max-width: 100%;
+		width: 100%;
+		box-sizing: border-box;
+		overflow: hidden;
+	}
+
+	/* Code blocks and preformatted text: allow horizontal scroll */
+	pre, code, .code-block, .syntax {
+		max-width: 100%;
+		overflow-x: auto;
+		white-space: pre;
+		-webkit-overflow-scrolling: touch;
+	}
+	.table-responsive, .table-wrap, .responsive-table {
+		width: 100%;
+		overflow-x: auto;
+	}
+
+	/* Message bubble spacing on narrower screens */
+	.message.incoming, .message.outgoing, .bubble {
+		margin-left: 8px;
+		margin-right: 8px;
+		padding: 8px 12px;
+	}
+
+	/* Modals: make dialogs fit under 1024 */
+	.modal, .modal-dialog, .dialog, .modal-content {
+		max-width: 92vw;
+		margin-left: auto;
+		margin-right: auto;
+		box-sizing: border-box;
+	}
+
+	/* Settings and profile pages */
+	.settings, .Setting, .profile, .user-profile {
+		padding-left: 12px;
+		padding-right: 12px;
+	}
+
+	/* Prevent fixed elements from pushing beyond viewport */
+	.fixed, .fixed-bottom, .sticky, .sticky-top {
+		max-width: 100%;
+		left: 0;
+		right: 0;
+	}
+}
+
+@media (max-width: 768px) {
+	/* Progress update: applying tablet & large-mobile fixes next */
+
+	html, body { overflow-x: hidden; }
+
+	/* Containers and gutters reduced */
+	.app, .main, .container, .content, #root {
+		padding-left: 12px;
+		padding-right: 12px;
+	}
+
+	/* Collapse sidebar completely to make room on tablets/phones */
+	.sidebar, .SideBar, .side-bar {
+		position: fixed;
+		top: 0;
+		left: 0;
+		height: 100vh;
+		width: 280px;
+		transform: translateX(-110%);
+		z-index: 1200;
+		background: inherit;
+		transition: transform .26s ease;
+	}
+	.sidebar.open, .sidebar.active, .sidebar.show,
+	.SideBar.open, .SideBar.active, .SideBar.show,
+	.side-bar.open, .side-bar.active, .side-bar.show {
+		transform: translateX(0);
+	}
+	/* When collapsed by JS keep ARIA accessible */
+	.sidebar[aria-hidden="true"], .SideBar[aria-hidden="true"], .side-bar[aria-hidden="true"] {
+		transform: translateX(-110%);
+	}
+
+	/* Main content gets full width */
+	.main, .content-wrapper, .page-content {
+		margin-left: 0;
+		width: 100%;
+		padding-bottom: 72px; /* room for fixed chat input / actions */
+	}
+
+	/* Chat: full-height, stacked layout with fixed footer input */
+	.chat, .chat-container, .Chat, .chat-window {
+		height: 100vh;
+		min-height: 100vh;
+	}
+	.messages, .message-list {
+		flex: 1 1 auto;
+		overflow-y: auto;
+		padding-bottom: 84px;
+	}
+	.chat-input, .ChatInput, .input-area {
+		position: fixed;
+		left: 12px;
+		right: 12px;
+		bottom: 12px;
+		z-index: 1300;
+		background: transparent;
+		padding: 6px;
+		border-radius: 12px;
+	}
+	.chat-input .controls button, .input-area .controls button {
+		min-width: 44px;
+		min-height: 44px;
+		padding: 8px;
+	}
+
+	/* Avatar reductions for phones/tablets */
+	.avatar, .user-avatar, .profile-pic { max-width: 40px; }
+
+	/* Buttons / touch targets */
+	button, .btn, .button {
+		min-height: 48px;
+		padding: 12px 14px;
+		font-size: 1rem;
+	}
+
+	/* Auth forms: full-width stack with readable inputs */
+	form, .auth-form, .login-form, .register-form {
+		max-width: 420px;
+		padding: 0 8px;
+	}
+	.auth-form .form-row, .login-form .form-row, .register-form .form-row {
+		display: block;
+		width: 100%;
+	}
+	label { display: block; margin-bottom: 6px; }
+
+	/* Headings reduced further */
+	h1 { font-size: 1.6rem; }
+	h2 { font-size: 1.25rem; }
+	h3 { font-size: 1rem; }
+
+	/* Message bubbles wrap & use full width */
+	.message, .message-card, .bubble {
+		display: inline-block;
+		max-width: calc(100% - 72px);
+	}
+
+	/* Code & pre: ensure horizontal scrolling works on small screens */
+	pre, code, .code-block {
+		overflow-x: auto;
+		max-width: 100%;
+		padding: 12px;
+	}
+
+	/* Tables become scrollable */
+	table, .table {
+		display: block;
+		width: 100%;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	/* Sidebar toggle affordance (common button selectors) */
+	.hamburger, .menu-toggle, .btn-toggle-sidebar {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 44px;
+		min-height: 44px;
+		padding: 8px;
+		touch-action: manipulation;
+	}
+
+	/* Settings page specifics */
+	.settings .settings-grid, .Setting .settings-grid {
+		display: block;
+		width: 100%;
+		gap: 12px;
+	}
+
+	/* Modals become nearly full-screen for tablet/phone */
+	.modal, .modal-dialog {
+		width: calc(100vw - 24px);
+		max-width: calc(100vw - 24px);
+		margin: 8px auto;
+	}
+
+	/* Sidebar content within collapsed sidebar should scroll */
+	.sidebar .menu, .side-bar .menu, .SideBar .menu {
+		overflow-y: auto;
+		-webkit-overflow-scrolling: touch;
+		max-height: 100vh;
+	}
+}
+
+@media (max-width: 480px) {
+	/* Mobile - final pass for phones (320px-480px) */
+	html, body { overflow-x: hidden; }
+
+	/* Reduce global paddings for small phones */
+	.app, .main, .container, .content, #root {
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+
+	/* Collapse sidebar off-canvas on phones */
+	.sidebar, .SideBar, .side-bar {
+		width: 86%;
+		max-width: 340px;
+		transform: translateX(-120%);
+	}
+	.sidebar.open, .sidebar.active, .sidebar.show,
+	.SideBar.open, .SideBar.active, .SideBar.show,
+	.side-bar.open, .side-bar.active, .side-bar.show {
+		transform: translateX(0);
+	}
+
+	/* Main content full width */
+	.main, .content-wrapper, .page-content {
+		padding-bottom: 92px;
+	}
+
+	/* Chat layout optimizations for small screens */
+	.chat, .chat-container, .chat-window {
+		padding-top: 8px;
+	}
+	.messages, .message-list {
+		padding-left: 6px;
+		padding-right: 6px;
+		padding-bottom: 110px;
+	}
+	.message, .message-card, .bubble {
+		margin-left: 6px;
+		margin-right: 6px;
+		max-width: calc(100% - 64px);
+		font-size: 0.96rem;
+	}
+
+	/* Chat input fixed bottom with clear safe-area consideration */
+	.chat-input, .ChatInput, .input-area {
+		left: 8px;
+		right: 8px;
+		bottom: calc(env(safe-area-inset-bottom, 12px) + 6px);
+		padding: 8px;
+		border-radius: 12px;
+	}
+
+	/* Auth pages: stack and make controls large enough for touch */
+	form, .auth-form, .login-form, .register-form {
+		max-width: 360px;
+		margin-left: auto;
+		margin-right: auto;
+		padding-left: 6px;
+		padding-right: 6px;
+	}
+	input[type="text"], input[type="email"], input[type="password"], textarea {
+		font-size: 1rem;
+		padding: 10px 12px;
+	}
+
+	/* Buttons: enlarge tap targets */
+	button, .btn, .button {
+		min-height: 50px;
+		padding: 12px 16px;
+		border-radius: 8px;
+	}
+
+	/* Avatars shrink gracefully */
+	.avatar, .user-avatar, .profile-pic { max-width: 36px; }
+
+	/* Headings scale for readability */
+	h1 { font-size: 1.4rem; }
+	h2 { font-size: 1.1rem; }
+	h3 { font-size: 1rem; }
+
+	/* History / cards - stack content, avoid overflow */
+	.history-card, .HistoryCard, .card {
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+
+	/* Ensure interactive elements do not overflow */
+	.tag, .chip, .label {
+		max-width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	/* Tables and code blocks: clear affordance for horizontal scroll */
+	.table-responsive, .table-wrap, .responsive-table, pre, code {
+		-webkit-overflow-scrolling: touch;
+		overflow-x: auto;
+		max-width: 100%;
+	}
+
+	/* Modals: full-screen like behavior but with margin */
+	.modal, .modal-dialog, .dialog {
+		width: calc(100vw - 16px);
+		max-width: calc(100vw - 16px);
+		height: auto;
+		margin: 6px auto;
+		top: 6px;
+	}
+
+	/* Minor tweaks to prevent text overflow */
+	p, a, li, span {
+		word-break: break-word;
+		overflow-wrap: anywhere;
+	}
+
+	/* Accessibility: ensure focus outlines remain visible on small devices */
+	:focus { outline-offset: 2px; }
+
+	/* Final safety: force any element accidentally larger than viewport to wrap */
+	img, svg, video, canvas, iframe {
+		max-width: 100%;
+		height: auto;
+	}
+}
+
+/* Page-specific hints (non-invasive)
+	 - Chat page, Sidebar, Auth, Settings, Modals
+	 - These are additive overrides only and scoped to breakpoints above
+*/
+
+/* Chat page (general) */
+@media (max-width: 1024px) {
+	/* Ensure message timestamps and meta don't push width */
+	.message .meta, .message .time, .msg-meta { display: inline-block; white-space: nowrap; }
+}
+
+/* Login/Register/Forgot/Reset/Verify pages responsiveness */
+@media (max-width: 768px) {
+	.login-page, .register-page, .forgot-page, .reset-page, .verify-page {
+		padding-top: 20px;
+		padding-bottom: 20px;
+	}
+	.auth-illustration, .auth-hero { display: none; } /* keep layout compact on small devices */
+}
+
+/* Settings page */
+@media (max-width: 768px) {
+	.settings .row, .Setting .row { display: block; }
+	.settings .col, .Setting .col { width: 100%; max-width: 100%; }
+}
+
+/* Sidebar and Navbar interactions */
+@media (max-width: 480px) {
+	.navbar .actions, .topbar .actions { gap: 8px; }
+	.search-input, .search { width: 100%; max-width: 100%; }
+}
+
+/* Preserve dark mode — only adjust sizes/spacing above, no color changes */
+
+/* End of appended responsive CSS */
+

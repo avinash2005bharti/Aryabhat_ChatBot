@@ -11,6 +11,8 @@ import HistoryCard from '../components/HistoryCard';
 
 import socket from '../socketServer/soket.service';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Backend URL from environment
+
 import './Home.css';
 
 const Home = () => {
@@ -103,7 +105,7 @@ const Home = () => {
     try {
 
       const response = await axios.post(
-        "http://localhost:5000/api/chat/",
+        `${BACKEND_URL}/api/chat/`,
         {
           title: chatTitle
         },
@@ -242,7 +244,7 @@ useEffect(() => {
     try {
 
       const response = await axios.get(
-        "http://localhost:5000/api/chat",
+        `${BACKEND_URL}/api/chat`,
         {
           withCredentials: true
         }
@@ -280,7 +282,7 @@ useEffect(() => {
     
 
     const response = await axios.get(
-      `http://localhost:5000/api/chat/${chatId}/messages`,
+      `${BACKEND_URL}/api/chat/${chatId}/messages`,
       {
         withCredentials: true
       }
@@ -307,7 +309,7 @@ const deleteChat = async (chatId) => {
     try {
 
         await axios.delete(
-            `http://localhost:5000/api/chat/${chatId}`,
+            `${BACKEND_URL}/api/chat/${chatId}`,
             {
                 withCredentials: true
             }

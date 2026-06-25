@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 import axios from 'axios'
 import './Register.css'
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Backend URL from environment
+
 const Register = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -15,7 +17,7 @@ const Register = () => {
 
   const submitHandler = (e) =>{
     e.preventDefault();
-    axios.post("http://localhost:5000/api/auth/register", { 
+    axios.post(`${BACKEND_URL}/api/auth/register`, { 
         email : email,
         fullName:{
           firstName : firstName,

@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import { useNavigate,NavLink } from 'react-router-dom'
 import "./ForgotPassword.css";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Backend URL from environment
+
 const ForgotPassword = () => {
 
     const [email, setEmail] = useState("");
@@ -14,7 +16,7 @@ const ForgotPassword = () => {
     try {
 
         const response = await axios.post(
-            "http://localhost:5000/api/auth/forgot-password",
+            `${BACKEND_URL}/api/auth/forgot-password`,
             {
                 email
             }

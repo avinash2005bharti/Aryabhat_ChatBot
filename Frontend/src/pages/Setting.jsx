@@ -3,6 +3,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "./Setting.css";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Backend URL from environment
+
 const Settings = () => {
 
     const [firstName, setFirstName] = useState("");
@@ -22,7 +24,7 @@ const Settings = () => {
         try {
 
             const response = await axios.get(
-                "http://localhost:5000/api/setting/profile",
+                `${BACKEND_URL}/api/setting/profile`,
                 {
                     withCredentials: true
                 }
@@ -55,7 +57,7 @@ const Settings = () => {
         try {
 
             const response = await axios.put(
-                "http://localhost:5000/api/setting/update-name",
+                `${BACKEND_URL}/api/setting/update-name`,
                 {
                     firstName,
                     lastName
@@ -96,7 +98,7 @@ const Settings = () => {
         try {
 
             const response = await axios.put(
-                "http://localhost:5000/api/setting/change-password",
+                `${BACKEND_URL}/api/setting/change-password`,
                 {
                     currentPassword,
                     newPassword

@@ -32,7 +32,7 @@ const MessageBox = ({messages, isTyping,darkMode}) =>  {
         isTyping && (
 
             <div className="typing-indicator">
-              🤖 Aurora is typing<span className="dots"></span>
+              🌍 Aryabhat is typing<span className="dots"></span>
             </div>
           )
         }
