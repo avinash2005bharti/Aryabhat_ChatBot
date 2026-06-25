@@ -67,20 +67,6 @@ const Home = () => {
 
   const navigate = useNavigate();
 
-  /* ===================================================
-      LOGOUT
-  =================================================== */
-  const handleLogout = () => {
-
-    // Remove local user data
-    localStorage.removeItem("user");
-
-    // Remove token cookie if accessible
-    document.cookie =
-      "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    navigate("/");
-    toast.success("User Logout successfully")
-  };
 
   /* ===================================================
       NEW CHAT BUTTON CLICK
@@ -337,6 +323,22 @@ const deleteChat = async (chatId) => {
     }
 
 };
+
+  /* ===================================================
+      LOGOUT
+  =================================================== */
+  const handleLogout = () => {
+
+    // Remove local user data
+    localStorage.removeItem("user");
+
+    // Remove token cookie if accessible
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/"
+    socket.disconnect();
+    navigate("/");
+    toast.success("User Logout successfully")
+  };
+
 
 useEffect(() => {
 

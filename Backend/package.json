@@ -31,6 +31,7 @@
     "nodemailer": "^8.0.11",
     "ollama": "^0.6.3",
     "openai": "^6.39.1",
+    "resend": "^6.14.0",
     "sarvamai": "^1.1.7",
     "socket.io": "^4.8.3"
   }

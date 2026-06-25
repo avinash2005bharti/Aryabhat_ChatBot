@@ -9,6 +9,7 @@ REGISTER USER
 ========================= */
 
 async function registerUser(req, res) {
+
    
     const {
         email,
@@ -47,6 +48,8 @@ async function registerUser(req, res) {
         password: hashedPassword,
 
         emailVerificationOTP: otp,
+
+        isVerified: false,
 
         emailVerificationExpire:
             Date.now() + 10 * 60 * 1000
@@ -183,6 +186,14 @@ async function loginUser(req, res) {
             message: "User Not Found"
         });
     }
+
+    if (!user.isVerified) {
+
+    return res.status(400).json({
+        message: "Please verify your email first"
+    });
+
+}
 
     // if (!user.isVerified) {
     //     return res.status(400).json({
