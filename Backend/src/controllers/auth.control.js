@@ -216,11 +216,12 @@ async function loginUser(req, res) {
             });
         }
 
-        if (!user.isVerified) {
+        if (user.isVerified===false) {
             return res.status(400).json({
                 message: "Please verify your email first"
             });
         }
+        
 
         const isPasswordCorrect = await bcrypt.compare(
             password,
@@ -340,6 +341,7 @@ async function forgotPassword(req, res) {
     }
 
 }
+
 
 /* =========================
 VERIFY RESET OTP
@@ -503,6 +505,95 @@ async function resendcode(req, res) {
 
 }
 
+// Activate account 
+async function verifyaccount(req, res) {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
+
+        const user = await userModel.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (user.isVerified === true) {
+            return res.status(400).json({ message: "Account already verified" });
+        }
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        await userModel.findOneAndUpdate(
+            { email },
+            {
+                $set: {
+                    emailVerificationOTP: otp,
+                    emailVerificationExpire: Date.now() + 10 * 60 * 1000
+                }
+            }
+        );
+
+        await transporter.sendMail({
+            from: process.env.EMAIL,
+            to: email,
+            subject: "Account Verification OTP",
+            text: `Your OTP is ${otp}`
+        });
+
+        return res.status(200).json({
+            message: "OTP sent for account verification",
+            email
+        });
+
+    } catch (error) {
+        return res.status(500).json({ message: "Something went wrong" });
+    }
+}
+
+async function confirmAccount(req, res) {
+    try {
+        const { email, otp } = req.body;
+
+        if (!email || !otp) {
+            return res.status(400).json({
+                message: "Email and OTP are required"
+            });
+        }
+
+        const user = await userModel.findOne({
+            email,
+            emailVerificationOTP: otp,
+            emailVerificationExpire: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({
+                message: "Invalid or expired OTP"
+            });
+        }
+
+        await userModel.findOneAndUpdate(
+            { email },
+            {
+                $set: { isVerified: true },
+                $unset: {
+                    emailVerificationOTP: "",
+                    emailVerificationExpire: ""
+                }
+            }
+        );
+
+        return res.status(200).json({
+            message: "Account verified successfully"
+        });
+
+    } catch (error) {
+        return res.status(500).json({ message: "Something went wrong" });
+    }
+}
 /* =========================
 EXPORTS
 ========================= */
@@ -516,5 +607,7 @@ module.exports = {
     resetPassword,
     resendOTP,
     resendcode,
-    logoutUser
+    logoutUser,
+    verifyaccount,
+    confirmAccount
 };

@@ -1,84 +1,91 @@
-import React from 'react'
-import {useState }from 'react'
-import { useNavigate,NavLink } from 'react-router-dom'
-import axios from 'axios'
-import './Login.css'
+import React, { useState } from "react";
+import { useNavigate, NavLink } from "react-router-dom";
+import axios from "axios";
+import "./Login.css";
 import { toast } from "react-toastify";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Backend URL from environment
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const Login = () => {
-   const Navigate = useNavigate();
-  const [email,Setemail] = useState("");
-  const [password,Setpassword] = useState("");
+  const navigate = useNavigate();
 
-  const submitHandler = (e) => {  
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const submitHandler = async (e) => {
     e.preventDefault();
-    axios.post(`${BACKEND_URL}/api/auth/login`, { email, password }
-      ,{
-        withCredentials: true
-      }
-    )
-      .then((response) => {
-                
-            console.log(response.data);
 
-            localStorage.setItem(
-              "user",
-              JSON.stringify(response.data.user)
-            );
-            toast.success("Login Successful");
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/auth/login`,
+        { email, password },
+        { withCredentials: true }
+      );
 
-            Navigate("/");
-        })
-      
-      .catch((error) => {
-        console.error("Login error:", error);
-        toast.error("Invalid Email or Password");
-      });
-  }
-  
+      console.log(response.data);
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(response.data.user)
+      );
+
+      // ✅ backend message use
+      toast.success(response.data.message);
+
+      navigate("/");
+
+    } catch (error) {
+      console.error("Login error:", error);
+
+      // ✅ backend error message use
+      toast.error(
+        error.response?.data?.message || "Login failed"
+      );
+    }
+  };
+
   return (
+    <div className="login-container">
+      <div className="login-card">
 
+        <h2>Welcome Back</h2>
 
-   <div className="login-container">
+        <input
+          type="email"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-  <div className="login-card">
+        <input
+          type="password"
+          placeholder="Enter your password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-    <h2>Welcome Back</h2>
+        <button onClick={submitHandler}>
+          Login
+        </button>
 
-    <input
-      type="email"
-      placeholder="Enter your email"
-      value={email}
-      onChange={(e) => Setemail(e.target.value)}
-    />
+        <p>
+          Don't have an account?{" "}
+          <NavLink to="/register">Sign Up</NavLink>
+        </p>
 
-    <input
-      type="password"
-      placeholder="Enter your password"
-      value={password}
-      onChange={(e) => Setpassword(e.target.value)}
-    />
+        <p>
+          Forgot Password?{" "}
+          <NavLink to="/forgot-password">Click Here</NavLink>
+        </p>
 
-    <button onClick={submitHandler}>
-      Login
-    </button>
+        <p>
+          Verify Email?{" "}
+          <NavLink to="/activateaccount">Activate Account</NavLink>
+        </p>
 
-    <p>
-      Don't have an account?
-      <NavLink to="/register">
-        Sign Up
-      </NavLink></p>
-      <p>
-      ForgotPassword?
-      <NavLink to="/forgot-password">ForgotPassword</NavLink>
-    </p>
+      </div>
+    </div>
+  );
+};
 
-  </div>
-
-</div>
-  )
-}
-
-export default Login
+export default Login;

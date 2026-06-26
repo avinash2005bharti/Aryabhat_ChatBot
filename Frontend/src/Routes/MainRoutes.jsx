@@ -8,6 +8,8 @@ import Settings from '../pages/Setting'
 import ResetPassword from "../pages/ResetPassword";
 import VerifyEmail from "../pages/VerifyEmail";
 import VerifyResetOTP  from "../pages/VerifyResetOTP"
+import ActivateAccount from "../pages/ActivateAccount"
+import ConfirmAccount from "../pages/ConfirmAccount";
 
 const  MainRoutes = () => {
   return(
@@ -36,6 +38,11 @@ const  MainRoutes = () => {
     path="/verify-reset-otp"
     element={<VerifyResetOTP />}
 />
+<Route
+    path="/activateaccount"
+    element={<ActivateAccount />}
+/>
+<Route path="/confirm-account" element={<ConfirmAccount />} />
   </Routes>
   )
 }

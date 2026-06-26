@@ -16,5 +16,7 @@ router.post("/forgot-password", authControllers.forgotPassword);
 router.post("/verify-reset-otp", authControllers.verifyResetOTP);
 router.post("/reset-password", authControllers.resetPassword);
 router.post("/resend-reset-otp", authControllers.resendcode);
+router.post("/activateaccount", authControllers.verifyaccount)
+router.post("/confirmaccount",authControllers.confirmAccount);
 
 module.exports = router;
