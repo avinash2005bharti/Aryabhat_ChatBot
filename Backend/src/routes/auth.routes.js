@@ -9,6 +9,7 @@ router.post("/resend-verification-otp", authControllers.resendOTP);
 
 // Login
 router.post("/login", authControllers.loginUser);
+router.post("/logout", authControllers.logoutUser);
 
 // Forgot Password Flow
 router.post("/forgot-password", authControllers.forgotPassword);

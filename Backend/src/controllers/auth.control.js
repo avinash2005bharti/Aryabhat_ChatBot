@@ -265,6 +265,23 @@ async function loginUser(req, res) {
 }
 
 /* =========================
+Logout
+========================= */
+async function logoutUser(req, res) {
+
+    res.clearCookie("token", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none"
+    });
+
+    return res.status(200).json({
+        message: "Logout Successful"
+    });
+
+}
+
+/* =========================
 FORGOT PASSWORD
 ========================= */
 
@@ -498,5 +515,6 @@ module.exports = {
     verifyResetOTP,
     resetPassword,
     resendOTP,
-    resendcode
+    resendcode,
+    logoutUser
 };

@@ -1,47 +1,64 @@
-import React, { useState } from 'react';
-import './chatInput.css';
+import React, { useRef, useState } from "react";
+import "./chatInput.css";
 
 const ChatInput = ({ sendMessage }) => {
 
-  const [message, setMessage] = useState("");
+    const [message, setMessage] = useState("");
 
-  const handleSubmit = () => {
+    const textareaRef = useRef(null);
 
-    if (!message.trim()) return;
+    const handleChange = (e) => {
 
-    sendMessage(message);
+        setMessage(e.target.value);
 
-    setMessage("");
-  };
+        e.target.style.height = "45px";
+        e.target.style.height = e.target.scrollHeight + "px";
 
-  return (
-    <div className="chat-input-container">
+    };
 
-      <input
-        type="text"
-        placeholder="Type a message..."
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        onKeyDown={(e) => {
+    const handleSubmit = () => {
 
-          if (e.key === "Enter") {
+        if (!message.trim()) return;
 
-            if (!message.trim()) return;
+        sendMessage(message);
 
-            sendMessage(message);
+        setMessage("");
 
-            setMessage("");
-          }
+        textareaRef.current.style.height = "45px";
 
-        }}
-      />
+    };
 
-      <button onClick={handleSubmit}>
-        Send
-      </button>
+    return (
 
-    </div>
-  );
+        <div className="chat-input-container">
+
+            <textarea
+                ref={textareaRef}
+                rows={1}
+                placeholder="Type a message..."
+                value={message}
+                onChange={handleChange}
+                onKeyDown={(e) => {
+
+                    if (e.key === "Enter" && !e.shiftKey) {
+
+                        e.preventDefault();
+
+                        handleSubmit();
+
+                    }
+
+                }}
+            />
+
+            <button onClick={handleSubmit}>
+                Send
+            </button>
+
+        </div>
+
+    );
+
 };
 
 export default ChatInput;
