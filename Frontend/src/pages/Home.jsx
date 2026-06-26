@@ -20,7 +20,7 @@ const Home = () => {
   ========================= */
   const [darkMode, setDarkMode] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
-  const[User,setUser] = useState("")
+  const[User,setUser] = useState(null)
 
   /* =========================
       LOGIN CHECK
@@ -71,7 +71,7 @@ const Home = () => {
     const storedUser = localStorage.getItem("user");
 
     if (!storedUser) {
-
+        
         navigate("/login", {
             replace: true
         });
