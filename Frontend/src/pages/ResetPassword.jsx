@@ -4,103 +4,90 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "./ResetPassword.css";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Backend URL from environment
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const ResetPassword = () => {
 
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
 
-const [password, setPassword] = useState("");
-const [confirmPassword, setconfirmPassword] = useState("")
-const [isSame , setisSame] = useState(false)
+    const navigate = useNavigate();
+    const location = useLocation();
 
-const navigate = useNavigate();
+    const email = location.state?.email;
+    const otp = location.state?.otp; // ✅ otp lo state se
 
-const location = useLocation();
+    const submitHandler = async () => {
 
-const email = location.state?.email;
+        // ✅ Direct compare karo, state use mat karo
+        if (password !== confirmPassword) {
+            toast.error("Passwords do not match");
+            return;
+        }
 
-const submitHandler = async () => {
+        if (!password || password.length < 6) {
+            toast.error("Password must be at least 6 characters");
+            return;
+        }
 
-    if(password === confirmPassword) setisSame(true)
+        try {
 
-    
-        if(isSame==true){
-         try {
-        
-
-        const response = await axios.post(
-            `${BACKEND_URL}/api/auth/reset-password`,
-            {
-                email,
-                password
-            }
-        );
-
-        toast.success(
-            response.data.message
-        );
-
-        setTimeout(() => {
-
-            navigate("/login");
-
-        }, 1500);
-
-    } catch (error) {
-
-        toast.error(
-            error.response?.data?.message ||
-            "Reset Failed"
-        );
-
-    }
-}
-
-else {
-    toast.error("password is not same")
-}
-
-};
-
-return (
-
-    <div className="reset-container">
-
-        <div className="reset-card">
-
-            <h2>Reset Password</h2>
-
-            <p>
-                Enter your new password
-            </p>
-
-            <input
-                type="password"
-                placeholder="New Password"
-                value={password}
-                onChange={(e) =>
-                    setPassword(e.target.value)
+            const response = await axios.post(
+                `${BACKEND_URL}/api/auth/reset-password`,
+                {
+                    email,
+                    otp,      // ✅ otp bhi bhejo
+                    password
                 }
-            />
-            <input
-                type="password"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) =>
-                    setconfirmPassword(e.target.value)
-                }
-            />
+            );
 
-            <button onClick={submitHandler}>
-                Reset Password
-            </button>
+            toast.success(response.data.message);
 
+            setTimeout(() => {
+                navigate("/login");
+            }, 1500);
+
+        } catch (error) {
+
+            toast.error(
+                error.response?.data?.message ||
+                "Reset Failed"
+            );
+
+        }
+
+    };
+
+    return (
+
+        <div className="reset-container">
+            <div className="reset-card">
+
+                <h2>Reset Password</h2>
+                <p>Enter your new password</p>
+
+                <input
+                    type="password"
+                    placeholder="New Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+
+                <input
+                    type="password"
+                    placeholder="Confirm Password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+
+                <button onClick={submitHandler}>
+                    Reset Password
+                </button>
+
+            </div>
         </div>
 
-    </div>
-
-);
-
+    );
 
 };
 

@@ -1,519 +1,275 @@
-
-import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import ChatHeader from '../components/ChatHeader';
-import ChatInput from '../components/chatInput';
-import MessageBox from '../components/MessageBox';
-import UserProfile from '../components/UserProfile';
-import HistoryCard from '../components/HistoryCard';
 
-import socket from '../socketServer/soket.service';
+import ChatHeader from "../components/ChatHeader";
+import ChatInput from "../components/chatInput";
+import MessageBox from "../components/MessageBox";
+import UserProfile from "../components/UserProfile";
+import HistoryCard from "../components/HistoryCard";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Backend URL from environment
+import socket from "../socketServer/soket.service";
 
-import './Home.css';
+import "./Home.css";
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const Home = () => {
 
   /* =========================
-      SIDEBAR STATE
+      AUTH STATE (IMPORTANT FIX)
+  ========================= */
+  const [user, setUser] = useState(null);
+
+  /* =========================
+      UI STATE
   ========================= */
   const [darkMode, setDarkMode] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
-
-  /* =========================
-      LOGIN CHECK
-      User exists in localStorage?
-  ========================= */
-  const isLoggedIn = !!localStorage.getItem("user");
-
-  /* =========================
-      POPUP STATE
-      Used while creating chat
-  ========================= */
   const [showPopup, setShowPopup] = useState(false);
 
   /* =========================
-      CHAT TITLE INPUT
-  ========================= */
-  const [chatTitle, setChatTitle] = useState("");
-
-  /* =========================
-      ALL CHAT HISTORY
-      Example:
-      [
-        {
-          _id:"123",
-          title:"React Notes"
-        }
-      ]
+      CHAT STATE
   ========================= */
   const [chat, setChats] = useState([]);
-
-  /* =========================
-      CURRENT CHAT MESSAGES
-  ========================= */
   const [messages, setMessages] = useState([]);
-
-  /* =========================
-      ACTIVE CHAT ID
-      Used while sending message
-  ========================= */
   const [activeChatId, setActiveChatId] = useState(null);
   const [activeChatTitle, setActiveChatTitle] = useState("New Chat");
+  const [chatTitle, setChatTitle] = useState("");
   const [isTyping, setIsTyping] = useState(false);
 
   const navigate = useNavigate();
 
-
-  /* ===================================================
-      NEW CHAT BUTTON CLICK
-  =================================================== */
-  const handleNewChatClick = () => {
-
-    const user = localStorage.getItem("user");
-
-    if (!user) {
-      toast.error("Please Login first")
-      return;
-    }
-    setShowPopup(true);
-    
-  };
-
-  /* ===================================================
-      CREATE NEW CHAT
-  =================================================== */
-  const createChat = async () => {
-
-    try {
-
-      const response = await axios.post(
-        `${BACKEND_URL}/api/chat/`,
-        {
-          title: chatTitle
-        },
-        {
-          withCredentials: true
-        }
-      );
-
-      console.log("Chat Created:", response.data);
-      toast.success("Chat created Successfully")
-
-      // Add new chat at top
-      setChats(prev => [
-        response.data.chat,
-        ...prev
-      ]);
-
-      // Save current active chat id
-      setActiveChatId(response.data.chat._id);
-      
-
-      setActiveChatTitle(response.data.chat.title);
-
-      setMessages([]);
-
-      // Clear old messages
-      setMessages([]);
-
-      // Close popup
-      setShowPopup(false);
-
-      // Clear title input
-      setChatTitle("");
-
-    } catch (error) {
-
-      if (error.response?.status === 401) {
-        alert("Please Login First");
-      }
-
-      console.error(error);
-    }
-  };
-
-  
-
-  /* ===================================================
-      SOCKET CONNECTION
-      Runs once when Home loads
-  =================================================== */
+  /* =========================
+      INIT USER
+  ========================= */
   useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
+  /* =========================
+      SOCKET CONNECT
+  ========================= */
+  useEffect(() => {
     socket.connect();
 
-    const handleConnect = () => {
-      console.log("Socket Connected:", socket.id);
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  /* =========================
+      SOCKET RESPONSE
+  ========================= */
+  useEffect(() => {
+    const handleAIResponse = (data) => {
+      setIsTyping(false);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: data.content,
+        },
+      ]);
     };
 
-    socket.on("connect", handleConnect);
+    socket.on("ai-response", handleAIResponse);
 
     return () => {
-      socket.off("connect", handleConnect);
+      socket.off("ai-response", handleAIResponse);
     };
-
   }, []);
 
-  /* ===================================================
-      SEND MESSAGE TO AI
-  =================================================== */
-  const sendMessage = (message) => {
-
-    // No chat selected
-    if (!activeChatId) {
-      alert("Please Create A Chat First");
-      return;
-    }
-
-    // Show user message instantly
-    setMessages(prev => [
-          ...prev,
-          {
-            role: "user",
-            content: message
-          }
-        ]);
-
-        setIsTyping(true);
-
-      // Send to backend
-      socket.emit("ai-message", {
-        chat: activeChatId,
-        content: message
-      });
-
-      console.log("Message Sent:", {
-        chat: activeChatId,
-        content: message
-      });
-  };
-
-  /* ===================================================
-      LISTEN FOR AI RESPONSE
-  =================================================== */
-useEffect(() => {
-
-  const handleAIResponse = (data) => {
-
-    console.log("AI Response:", data);
-     setIsTyping(false);
-
-    setMessages(prev => [
-      ...prev,
-      {
-        role: "assistant",
-        content: data.content,
-        chat: data.chat
-      }
-    ]);
-
-  };
-
-  socket.on("ai-response", handleAIResponse);
-
-  return () => {
-    socket.off("ai-response", handleAIResponse);
-  };
-
-}, []);
-
-  /* ===================================================
-      FETCH ALL CHATS
-      Runs when page loads
-  =================================================== */
+  /* =========================
+      FETCH CHATS
+  ========================= */
   const fetchChats = async () => {
-
     try {
+      const res = await axios.get(`${BACKEND_URL}/api/chat`, {
+        withCredentials: true,
+      });
 
-      const response = await axios.get(
-        `${BACKEND_URL}/api/chat`,
-        {
-          withCredentials: true
-        }
+      setChats(res.data.chats);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchChats();
+    }
+  }, [user]);
+
+  /* =========================
+      CREATE CHAT
+  ========================= */
+  const createChat = async () => {
+    try {
+      const res = await axios.post(
+        `${BACKEND_URL}/api/chat/`,
+        { title: chatTitle },
+        { withCredentials: true }
       );
 
-      console.log("Fetched Chats:", response.data);
+      setChats((prev) => [res.data.chat, ...prev]);
+      setActiveChatId(res.data.chat._id);
+      setActiveChatTitle(res.data.chat.title);
+      setMessages([]);
 
-      setChats(response.data.chats);
+      setChatTitle("");
+      setShowPopup(false);
 
-    } catch (error) {
-
-      console.error(error);
-
+      toast.success("Chat created");
+    } catch (err) {
+      console.log(err);
     }
   };
 
-  /* ===================================================
-      LOAD CHATS ON PAGE LOAD
-  =================================================== */
-  useEffect(() => {
-    fetchChats();
-  }, []);
-
-  const messageLoader = async () =>{
-    console.log("hello")
-  }
-  
+  /* =========================
+      OPEN CHAT
+  ========================= */
   const openChat = async (chatId, title) => {
-
-  try {
-
-    setActiveChatId(chatId);
-
-    setActiveChatTitle(title);
-    
-
-    const response = await axios.get(
-      `${BACKEND_URL}/api/chat/${chatId}/messages`,
-      {
-        withCredentials: true
-      }
-    );
-
-    setMessages(response.data.messages);
-
-  } catch (error) {
-
-    console.log(error);
-
-  }
-
-};
-
-const deleteChat = async (chatId) => {
-
-    const confirmDelete = window.confirm(
-        "Delete this chat?"
-    );
-
-    if (!confirmDelete) return;
-
     try {
+      setActiveChatId(chatId);
+      setActiveChatTitle(title);
 
-        await axios.delete(
-            `${BACKEND_URL}/api/chat/${chatId}`,
-            {
-                withCredentials: true
-            }
-        );
+      const res = await axios.get(
+        `${BACKEND_URL}/api/chat/${chatId}/messages`,
+        { withCredentials: true }
+      );
 
-        setChats(prev =>
-            prev.filter(
-                item => item._id !== chatId
-            )
-        );
-
-        if (activeChatId === chatId) {
-
-            setActiveChatId(null);
-
-            setActiveChatTitle("New Chat");
-
-            setMessages([]);
-        }
-
-    } catch (error) {
-
-        console.log(error);
-
+      setMessages(res.data.messages);
+    } catch (err) {
+      console.log(err);
     }
+  };
 
-};
+  /* =========================
+      DELETE CHAT
+  ========================= */
+  const deleteChat = async (chatId) => {
+    try {
+      await axios.delete(`${BACKEND_URL}/api/chat/${chatId}`, {
+        withCredentials: true,
+      });
 
-  /* ===================================================
-      LOGOUT
-  =================================================== */
+      setChats((prev) => prev.filter((c) => c._id !== chatId));
+
+      if (activeChatId === chatId) {
+        setActiveChatId(null);
+        setActiveChatTitle("New Chat");
+        setMessages([]);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  /* =========================
+      SEND MESSAGE
+  ========================= */
+  const sendMessage = (message) => {
+    if (!activeChatId) return;
+
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: message },
+    ]);
+
+    setIsTyping(true);
+
+    socket.emit("ai-message", {
+      chat: activeChatId,
+      content: message,
+    });
+  };
+
+  /* =========================
+      LOGOUT (FIXED)
+  ========================= */
   const handleLogout = () => {
 
-    // Remove local user data
-    localStorage.removeItem("user");
+    localStorage.clear();
 
-    // Remove token cookie if accessible
-    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/"
+    setUser(null);
+    setChats([]);
+    setMessages([]);
+    setActiveChatId(null);
+    setActiveChatTitle("New Chat");
+
     socket.disconnect();
-    navigate("/");
-    toast.success("User Logout successfully")
+
+    navigate("/login", { replace: true });
+
+    setTimeout(() => {
+      toast.success("Logout successful");
+    }, 100);
   };
 
-
-useEffect(() => {
-
-  const savedTheme =
-    localStorage.getItem("theme");
-
-  if(savedTheme === "dark"){
-    setDarkMode(true);
-  }
-
-}, []);
-
-
-useEffect(() => {
-
-  localStorage.setItem(
-    "theme",
-    darkMode ? "dark" : "light"
-  );
-
-}, [darkMode]);
-
-  
   return (
-      <div
-        className={`home
-          ${!showSidebar ? "collapsed" : ""}
-          ${darkMode ? "dark-mode" : ""}
-        `}
-      >
+    <div
+      className={`home ${!showSidebar ? "collapsed" : ""} ${
+        darkMode ? "dark-mode" : ""
+      }`}
+    >
 
-      {/* Sidebar Toggle Button */}
-      <button
-        className={`close-btn ${!showSidebar ? 'open-btn':''}`}
-        onClick={() => setShowSidebar(!showSidebar)}
-      >
-        ☰
-      </button>
+      {/* Sidebar */}
+      <div className={`side-bar ${!showSidebar ? "collapsed-sidebar" : ""}`}>
 
-      {/* ================= SIDEBAR ================= */}
-      {/* ================= SIDEBAR ================= */}
-        <div
-          className={`side-bar ${
-            !showSidebar ? "collapsed-sidebar" : ""
-          }`}
-        >
-
-          {/* Chat History */}
-          <div className="history-section">
-          {
-            chat.map((chatItem) => (
-
-              <HistoryCard
-                key={chatItem._id}
-                title={chatItem.title}
-                onClick={() =>
-                  openChat(
-                    chatItem._id,
-                    chatItem.title
-                  )
-                }
-                onDelete={() =>
-                  deleteChat(chatItem._id)
-                }
-                active={activeChatId === chatItem._id}
-              />
-
-            ))
-          }
-          </div>
-
-
-          {/* User Profile */}
-          <div className="profile-section">
-            <UserProfile />
-          </div>
-
-
-          {/* Create Chat Popup */}
-          {
-             showPopup && (
-              <div className="popup">
-
-                <div className="popup-content">
-
-                  <h3>✨ Create New Chat</h3>
-
-                  <p className="popup-subtitle">
-                    Give your conversation a name
-                  </p>
-
-                  <input
-                    type="text"
-                    placeholder="e.g. React Notes"
-                    value={chatTitle}
-                    onChange={(e) =>
-                      setChatTitle(e.target.value)
-                    }
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        createChat();
-                      }
-                    }}
-                  />
-
-                  <div className="popup-buttons">
-
-                    <button
-                      className="cancel-btn"
-                      onClick={() => setShowPopup(false)}
-                    >
-                      Cancel
-                    </button>
-
-                    <button
-                      className="create-btn"
-                      onClick={createChat}
-                    >
-                      Create Chat
-                    </button>
-
-                  </div>
-
-                </div>
-
-              </div>
-            )
-          }
-
-          {/* Login / Logout Button */}
-          {
-            isLoggedIn ? (
-              <button
-                className="logout-btn"
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
-            ) : (
-              <button
-                className="logout-btn"
-                onClick={() => navigate("/login")}
-              >
-                Login
-              </button>
-            )
-          }
-
+        {/* Chat History */}
+        <div className="history-section">
+          {chat.map((chatItem) => (
+            <HistoryCard
+              key={chatItem._id}
+              title={chatItem.title}
+              onClick={() => openChat(chatItem._id, chatItem.title)}
+              onDelete={() => deleteChat(chatItem._id)}
+              active={activeChatId === chatItem._id}
+            />
+          ))}
         </div>
-      
+
+        {/* User Profile */}
+        <UserProfile />
+
+        {/* Logout/Login */}
+        {user ? (
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
+        ) : (
+          <button
+            className="logout-btn"
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </button>
+        )}
+
+      </div>
 
       {/* Header */}
-      <div className="chat-header">
-        <ChatHeader
-          title={activeChatTitle}
-          onNewChat={handleNewChatClick}
-          darkMode={darkMode}
-          setDarkMode={setDarkMode}
-        />
-      </div>
+      <ChatHeader
+        title={activeChatTitle}
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
+        onNewChat={() => {
+          if (!user) return toast.error("Login first");
+          setShowPopup(true);
+        }}
+      />
 
       {/* Messages */}
-      <div className="message-box">
-        <MessageBox
-          messages={messages}
-          isTyping={isTyping}
-          darkMode={darkMode}
-        />
-      </div>
+      <MessageBox messages={messages} isTyping={isTyping} />
 
       {/* Input */}
-      <div className="chat-input">
-        <ChatInput sendMessage={sendMessage} />
-        
-      </div>
+      <ChatInput sendMessage={sendMessage} />
 
     </div>
   );

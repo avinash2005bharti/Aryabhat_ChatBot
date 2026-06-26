@@ -1,7 +1,6 @@
 const userModel = require('../models/user.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 const transporter = require('../services/mail.service');
 
 /* =========================
@@ -10,71 +9,68 @@ REGISTER USER
 
 async function registerUser(req, res) {
 
-   
-    const {
-        email,
-        fullName: {
-            firstName,
-            lastName
-        },
-        password
-    } = req.body;
+    try {
 
-    const isUserAlreadyExists =
-        await userModel.findOne({ email });
+        const {
+            email,
+            fullName: {
+                firstName,
+                lastName
+            },
+            password
+        } = req.body;
 
-    if (isUserAlreadyExists) {
-        return res.status(400).json({
-            message: "User already exists"
+        if (!email || !firstName || !lastName || !password) {
+            return res.status(400).json({
+                message: "All fields are required"
+            });
+        }
+
+        const isUserAlreadyExists = await userModel.findOne({ email });
+
+        if (isUserAlreadyExists) {
+            return res.status(400).json({
+                message: "User already exists"
+            });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const otp = Math.floor(
+            100000 + Math.random() * 900000
+        ).toString();
+
+        const user = await userModel.create({
+            email,
+            fullName: {
+                firstName,
+                lastName
+            },
+            password: hashedPassword,
+            emailVerificationOTP: otp,
+            isVerified: false,
+            emailVerificationExpire: Date.now() + 10 * 60 * 1000
         });
+
+        await transporter.sendMail({
+            from: process.env.EMAIL,
+            to: email,
+            subject: "Verify Email",
+            text: `Your OTP is ${otp}`
+        });
+
+        return res.status(201).json({
+            message: "OTP sent successfully",
+            email: user.email
+        });
+
+    } catch (error) {
+
+        return res.status(500).json({
+            message: "Something went wrong"
+        });
+
     }
-
-    const hashedPassword =
-        await bcrypt.hash(password, 10);
-
-    const otp = Math.floor(
-        100000 + Math.random() * 900000
-    ).toString();
-
-    const user = await userModel.create({
-
-        email,
-
-        fullName: {
-            firstName,
-            lastName
-        },
-
-        password: hashedPassword,
-
-        emailVerificationOTP: otp,
-
-        isVerified: false,
-
-        emailVerificationExpire:
-            Date.now() + 10 * 60 * 1000
-
-    });
-
-    await transporter.sendMail({
-
-        from: process.env.EMAIL,
-
-        to: email,
-
-        subject: "Verify Email",
-
-        text: `Your OTP is ${otp}`
-
-    });
-
-    return res.status(201).json({
-
-        message: "OTP sent successfully",
-
-        email: user.email
-
-    });
 
 }
 
@@ -84,88 +80,115 @@ VERIFY EMAIL
 
 async function verifyEmail(req, res) {
 
-const { email, otp } = req.body;
+    try {
 
-const user = await userModel.findOne({
+        const { email, otp } = req.body;
 
-    email,
+        if (!email || !otp) {
+            return res.status(400).json({
+                message: "Email and OTP are required"
+            });
+        }
 
-    emailVerificationOTP: otp,
+        const user = await userModel.findOne({
+            email,
+            emailVerificationOTP: otp,
+            emailVerificationExpire: { $gt: Date.now() }
+        });
 
-    emailVerificationExpire: {
-        $gt: Date.now()
-    }
+        if (!user) {
+            return res.status(400).json({
+                message: "Invalid or expired OTP"
+            });
+        }
 
-});
+        await userModel.findOneAndUpdate(
+            { email },
+            {
+                $set: { isVerified: true },
+                $unset: {
+                    emailVerificationOTP: "",
+                    emailVerificationExpire: ""
+                }
+            }
+        );
 
-if (!user) {
+        return res.status(200).json({
+            message: "Email Verified Successfully"
+        });
 
-    return res.status(400).json({
-        message: "Invalid OTP"
-    });
+    } catch (error) {
 
-}
-
-user.isVerified = true;
-
-user.emailVerificationOTP = undefined;
-
-user.emailVerificationExpire = undefined;
-
-await user.save();
-
-return res.status(200).json({
-    message: "Email Verified Successfully"
-});
-
-
-}
-
-// resend otp
-async function resendOTP(req, res) {
-
-    const { email } = req.body;
-
-    const user = await userModel.findOne({
-        email
-    });
-
-    if (!user) {
-
-        return res.status(404).json({
-            message: "User not found"
+        return res.status(500).json({
+            message: "Something went wrong"
         });
 
     }
 
-    const otp = Math.floor(
-        100000 + Math.random() * 900000
-    ).toString();
+}
 
-    user.emailVerificationOTP = otp;
+/* =========================
+RESEND VERIFICATION OTP
+========================= */
 
-    user.emailVerificationExpire =
-        Date.now() + 10 * 60 * 1000;
+async function resendOTP(req, res) {
 
-    await user.save();
+    try {
 
-    await transporter.sendMail({
+        const { email } = req.body;
 
-        from: process.env.EMAIL,
+        if (!email) {
+            return res.status(400).json({
+                message: "Email is required"
+            });
+        }
 
-        to: email,
+        const user = await userModel.findOne({ email });
 
-        subject: "Aurora AI Verification OTP",
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
 
-        text: `Your OTP is ${otp}`
+        if (user.isVerified) {
+            return res.status(400).json({
+                message: "Email is already verified"
+            });
+        }
 
-    });
+        const otp = Math.floor(
+            100000 + Math.random() * 900000
+        ).toString();
 
-    return res.status(200).json({
+        await userModel.findOneAndUpdate(
+            { email },
+            {
+                $set: {
+                    emailVerificationOTP: otp,
+                    emailVerificationExpire: Date.now() + 10 * 60 * 1000
+                }
+            }
+        );
 
-        message: "OTP Sent Successfully"
+        await transporter.sendMail({
+            from: process.env.EMAIL,
+            to: email,
+            subject: "Verify Email OTP",
+            text: `Your OTP is ${otp}`
+        });
 
-    });
+        return res.status(200).json({
+            message: "OTP Sent Successfully"
+        });
+
+    } catch (error) {
+
+        return res.status(500).json({
+            message: "Something went wrong"
+        });
+
+    }
 
 }
 
@@ -175,59 +198,69 @@ LOGIN USER
 
 async function loginUser(req, res) {
 
-    const { email, password } = req.body;
+    try {
 
-    const user = await userModel.findOne({
-        email
-    });
+        const { email, password } = req.body;
 
-    if (!user) {
-        return res.status(400).json({
-            message: "User Not Found"
-        });
-    }
+        if (!email || !password) {
+            return res.status(400).json({
+                message: "Email and password are required"
+            });
+        }
 
-    if (!user.isVerified) {
+        const user = await userModel.findOne({ email });
 
-    return res.status(400).json({
-        message: "Please verify your email first"
-    });
+        if (!user) {
+            return res.status(400).json({
+                message: "User Not Found"
+            });
+        }
 
-}
+        if (!user.isVerified) {
+            return res.status(400).json({
+                message: "Please verify your email first"
+            });
+        }
 
-    // if (!user.isVerified) {
-    //     return res.status(400).json({
-    //         message: "Please verify your email first"
-    //     });
-    // }
-
-    const isPasswordCorrect =
-        await bcrypt.compare(
+        const isPasswordCorrect = await bcrypt.compare(
             password,
             user.password
         );
 
-    if (!isPasswordCorrect) {
-        return res.status(400).json({
-            message: "Invalid Email or Password"
-        });
-    }
-
-    const token = jwt.sign(
-        { id: user._id },
-        process.env.JWT_SECRET
-    );
-
-    res.cookie("token", token);
-
-    return res.status(200).json({
-        message: "Login Successful",
-        user: {
-            email: user.email,
-            _id: user._id,
-            fullName: user.fullName
+        if (!isPasswordCorrect) {
+            return res.status(400).json({
+                message: "Invalid Email or Password"
+            });
         }
-    });
+
+        const token = jwt.sign(
+            { id: user._id },
+            process.env.JWT_SECRET
+        );
+
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "None",
+            maxAge: 30 * 24 * 60 * 60 * 1000
+        });
+
+        return res.status(200).json({
+            message: "Login Successful",
+            user: {
+                email: user.email,
+                _id: user._id,
+                fullName: user.fullName
+            }
+        });
+
+    } catch (error) {
+
+        return res.status(500).json({
+            message: "Something went wrong"
+        });
+
+    }
 
 }
 
@@ -235,115 +268,221 @@ async function loginUser(req, res) {
 FORGOT PASSWORD
 ========================= */
 
-async function forgotPassword(req,res){
+async function forgotPassword(req, res) {
 
-    const { email } = req.body;
+    try {
 
-    const user = await userModel.findOne({ email });
+        const { email } = req.body;
 
-    if(!user){
-        return res.status(404).json({
-            message:"User not found"
+        if (!email) {
+            return res.status(400).json({
+                message: "Email is required"
+            });
+        }
+
+        const user = await userModel.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        const otp = Math.floor(
+            100000 + Math.random() * 900000
+        ).toString();
+
+        await userModel.findOneAndUpdate(
+            { email },
+            {
+                $set: {
+                    resetPasswordOTP: otp,
+                    resetPasswordExpire: Date.now() + 10 * 60 * 1000
+                }
+            }
+        );
+
+        await transporter.sendMail({
+            from: process.env.EMAIL,
+            to: email,
+            subject: "Reset Password OTP",
+            text: `Your OTP is ${otp}`
         });
+
+        return res.status(200).json({
+            message: "OTP sent successfully",
+            email
+        });
+
+    } catch (error) {
+
+        return res.status(500).json({
+            message: "Something went wrong"
+        });
+
     }
-
-    const otp = Math.floor(
-        100000 + Math.random() * 900000
-    ).toString();
-
-    user.resetPasswordOTP = otp;
-
-    user.resetPasswordExpire =
-        Date.now() + 10 * 60 * 1000;
-
-    await user.save();
-
-    await transporter.sendMail({
-
-        from: process.env.EMAIL,
-
-        to: email,
-
-        subject: "Reset Password OTP",
-
-        text: `Your OTP is ${otp}`
-
-    });
-
-    return res.status(200).json({
-        message:"OTP sent successfully",
-        email
-    });
 
 }
 
 /* =========================
-verify resetpass otp
+VERIFY RESET OTP
 ========================= */
 
-async function verifyResetOTP(req,res){
+async function verifyResetOTP(req, res) {
 
-    const { email, otp } = req.body;
+    try {
 
-    const user = await userModel.findOne({
+        const { email, otp } = req.body;
 
-        email,
-
-        resetPasswordOTP: otp,
-
-        resetPasswordExpire:{
-            $gt: Date.now()
+        if (!email || !otp) {
+            return res.status(400).json({
+                message: "Email and OTP are required"
+            });
         }
 
-    });
+        const user = await userModel.findOne({
+            email,
+            resetPasswordOTP: otp,
+            resetPasswordExpire: { $gt: Date.now() }
+        });
 
-    if(!user){
+        if (!user) {
+            return res.status(400).json({
+                message: "Invalid or expired OTP"
+            });
+        }
 
-        return res.status(400).json({
-            message:"Invalid OTP"
+        return res.status(200).json({
+            message: "OTP Verified"
+        });
+
+    } catch (error) {
+
+        return res.status(500).json({
+            message: "Something went wrong"
         });
 
     }
 
-    return res.status(200).json({
-        message:"OTP Verified"
-    });
-
 }
-
 
 /* =========================
 RESET PASSWORD
 ========================= */
 
-async function resetPassword(req,res){
+async function resetPassword(req, res) {
 
-    const { email,password } = req.body;
+    try {
 
-    const user =
-        await userModel.findOne({ email });
+        const { email, otp, password } = req.body;
 
-    if(!user){
+        if (!email || !otp || !password) {
+            return res.status(400).json({
+                message: "All fields are required"
+            });
+        }
 
-        return res.status(404).json({
-            message:"User not found"
+        if (password.length < 6) {
+            return res.status(400).json({
+                message: "Password must be at least 6 characters"
+            });
+        }
+
+        const user = await userModel.findOne({
+            email,
+            resetPasswordOTP: otp,
+            resetPasswordExpire: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({
+                message: "Invalid or expired OTP"
+            });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        await userModel.findOneAndUpdate(
+            { email },
+            {
+                $set: { password: hashedPassword },
+                $unset: {
+                    resetPasswordOTP: "",
+                    resetPasswordExpire: ""
+                }
+            }
+        );
+
+        return res.status(200).json({
+            message: "Password reset successful"
+        });
+
+    } catch (error) {
+
+        return res.status(500).json({
+            message: "Something went wrong"
         });
 
     }
 
-    const hashedPassword =
-        await bcrypt.hash(password,10);
+}
 
-    user.password = hashedPassword;
+/* =========================
+RESEND RESET OTP
+========================= */
 
-    user.resetPasswordOTP = undefined;
-    user.resetPasswordExpire = undefined;
+async function resendcode(req, res) {
 
-    await user.save();
+    try {
 
-    return res.status(200).json({
-        message:"Password Reset Successful"
-    });
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                message: "Email is required"
+            });
+        }
+
+        const user = await userModel.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        const otp = Math.floor(
+            100000 + Math.random() * 900000
+        ).toString();
+
+        await userModel.findOneAndUpdate(
+            { email },
+            {
+                $set: {
+                    resetPasswordOTP: otp,
+                    resetPasswordExpire: Date.now() + 10 * 60 * 1000
+                }
+            }
+        );
+
+        await transporter.sendMail({
+            from: process.env.EMAIL,
+            to: email,
+            subject: "Reset Password OTP",
+            text: `Your OTP is ${otp}`
+        });
+
+        return res.status(200).json({
+            message: "OTP Sent Successfully"
+        });
+
+    } catch (error) {
+
+        return res.status(500).json({
+            message: "Something went wrong"
+        });
+
+    }
 
 }
 
@@ -352,19 +491,12 @@ EXPORTS
 ========================= */
 
 module.exports = {
-
-
-registerUser,
-
-verifyEmail,
-
-loginUser,
-
-forgotPassword,
-
-verifyResetOTP,
-
-resetPassword,
-resendOTP
-
+    registerUser,
+    verifyEmail,
+    loginUser,
+    forgotPassword,
+    verifyResetOTP,
+    resetPassword,
+    resendOTP,
+    resendcode
 };

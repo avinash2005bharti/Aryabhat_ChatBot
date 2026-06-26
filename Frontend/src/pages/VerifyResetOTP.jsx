@@ -1,79 +1,136 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "./VerifyEmail.css";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Backend URL from environment
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const VerifyResetOTP = () => {
 
+    const [otp, setOtp] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [timer, setTimer] = useState(30);
 
-const [otp, setOtp] = useState("");
+    const location = useLocation();
+    const navigate = useNavigate();
 
-const location = useLocation();
+    const email = location.state?.email;
 
-const navigate = useNavigate();
+    const submitHandler = async () => {
 
-const email = location.state?.email;
+        try {
 
-const submitHandler = async () => {
+            const response = await axios.post(
+                `${BACKEND_URL}/api/auth/verify-reset-otp`,
+                {
+                    email,
+                    otp
+                }
+            );
 
-    try {
+            toast.success(response.data.message);
 
-        const response = await axios.post(
-            `${BACKEND_URL}/api/auth/verify-reset-otp`,
-            {
-                email,
-                otp
-            }
-        );
-
-        toast.success(
-            response.data.message
-        );
-
-        navigate(
-            "/reset-password",
-            {
+            navigate("/reset-password", {
                 state: {
+                    email,
+                    otp   // ✅ otp bhi bhejo ResetPassword ke liye
+                }
+            });
+
+        } catch (error) {
+
+            toast.error(
+                error.response?.data?.message ||
+                "Invalid OTP"
+            );
+
+        }
+
+    };
+
+    useEffect(() => {
+
+        if (timer <= 0) return;
+
+        const interval = setInterval(() => {
+            setTimer(prev => prev - 1);
+        }, 1000);
+
+        return () => clearInterval(interval);
+
+    }, [timer]);
+
+    const resendOTP = async () => {
+
+        if (timer > 0) return;
+
+        try {
+
+            setLoading(true);
+
+            const response = await axios.post(
+                `${BACKEND_URL}/api/auth/resend-reset-otp`, // ✅ URL fix
+                {
                     email
                 }
-            }
-        );
+            );
 
-    } catch (error) {
+            toast.success(response.data.message);
 
-        toast.error(
-            error.response?.data?.message ||
-            "Invalid OTP"
-        );
+            setTimer(30);
 
-    }
+        } catch (error) {
 
-};
+            toast.error(
+                error.response?.data?.message ||
+                "Failed to resend OTP"
+            );
 
-return (
+        } finally {
 
-<div className="verify-box">
-  <div className="otp-card">
-    <h2>Verify Email</h2>
+            setLoading(false);
 
-    <input
-      type="text"
-      placeholder="Enter your OTP"
-      value={otp}
-      onChange={(e) => setOtp(e.target.value)}
-    />
+        }
 
-    <button onClick={submitHandler}>
-      Submit OTP
-    </button>
-  </div>
-</div>
+    };
+
+    return (
+
+        <div className="verify-box">
+            <div className="otp-card">
+
+                <h2>Verify OTP</h2>
+
+                <input
+                    type="text"
+                    placeholder="Enter your OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                />
+
+                <button onClick={submitHandler}>
+                    Submit OTP
+                </button>
+
+                <button
+                    className="resend-btn"
+                    onClick={resendOTP}
+                    disabled={timer > 0 || loading}
+                >
+                    {
+                        loading
+                        ? "Sending..."
+                        : timer > 0
+                        ? `Resend OTP in ${timer}s`
+                        : "Resend OTP"
+                    }
+                </button>
+
+            </div>
+        </div>
 
     );
-
 
 };
 
