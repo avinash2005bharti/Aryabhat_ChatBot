@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useNavigate,NavLink } from 'react-router-dom'
 import "./ForgotPassword.css";
 
-const BACKEND_URL = process.env.env.VITE_BACKEND_URL; // Backend URL from environment
+const BACKEND_URL = process.env.VITE_BACKEND_URL; // Backend URL from environment
 
 const ForgotPassword = () => {
 

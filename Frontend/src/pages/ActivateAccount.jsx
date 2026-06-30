@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "./ForgotPassword.css";
 
-const BACKEND_URL = process.env.env.VITE_BACKEND_URL;
+const BACKEND_URL = process.env.VITE_BACKEND_URL;
 
 const ActivateAccount = () => {
     const [email, setEmail] = useState("");

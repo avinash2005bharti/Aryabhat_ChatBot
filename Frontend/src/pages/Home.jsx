@@ -91,7 +91,7 @@ const Home = () => {
     try {
 
         await axios.post(
-            `${process.env.env.VITE_BACKEND_URL}/api/auth/logout`,
+            `${process.env.VITE_BACKEND_URL}/api/auth/logout`,
             {},
             {
                 withCredentials: true
@@ -141,7 +141,7 @@ const Home = () => {
     try {
 
       const response = await axios.post(
-        `${process.env.env.VITE_BACKEND_URL}/api/chat/`,
+        `${process.env.VITE_BACKEND_URL}/api/chat/`,
         {
           title: chatTitle
         },
@@ -280,7 +280,7 @@ useEffect(() => {
     try {
 
       const response = await axios.get(
-        `${process.env.env.VITE_BACKEND_URL}/api/chat`,
+        `${process.env.VITE_BACKEND_URL}/api/chat`,
         {
           withCredentials: true
         }
@@ -318,7 +318,7 @@ useEffect(() => {
     
 
     const response = await axios.get(
-      `${process.env.env.VITE_BACKEND_URL}/api/chat/${chatId}/messages`,
+      `${process.env.VITE_BACKEND_URL}/api/chat/${chatId}/messages`,
       {
         withCredentials: true
       }
@@ -345,7 +345,7 @@ const deleteChat = async (chatId) => {
     try {
 
         await axios.delete(
-            `${process.env.env.VITE_BACKEND_URL}/api/chat/${chatId}`,
+            `${process.env.VITE_BACKEND_URL}/api/chat/${chatId}`,
             {
                 withCredentials: true
             }

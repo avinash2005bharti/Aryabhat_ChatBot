@@ -4,7 +4,7 @@ import axios from "axios";
 import "./Login.css";
 import { toast } from "react-toastify";
 
-const BACKEND_URL = process.env.env.VITE_BACKEND_URL;
+const BACKEND_URL = process.env.VITE_BACKEND_URL;
 
 const Login = () => {
   const navigate = useNavigate();

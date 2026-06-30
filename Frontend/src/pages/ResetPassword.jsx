@@ -4,7 +4,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "./ResetPassword.css";
 
-const BACKEND_URL = process.env.env.VITE_BACKEND_URL;
+const BACKEND_URL = process.env.VITE_BACKEND_URL;
 
 const ResetPassword = () => {
 
