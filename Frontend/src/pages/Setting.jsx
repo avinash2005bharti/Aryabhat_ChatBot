@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "./Setting.css";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Backend URL from environment
+const BACKEND_URL = process.env.env.VITE_BACKEND_URL; // Backend URL from environment
 
 const Settings = () => {
 

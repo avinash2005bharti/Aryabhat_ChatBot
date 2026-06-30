@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./ForgotPassword.css";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const BACKEND_URL = process.env.env.VITE_BACKEND_URL;
 
 const ConfirmAccount = () => {
     const [otp, setOtp] = useState("");

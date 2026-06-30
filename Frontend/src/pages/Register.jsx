@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import axios from 'axios'
 import './Register.css'
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Backend URL from environment
+const BACKEND_URL = process.env.env.VITE_BACKEND_URL; // Backend URL from environment
 
 const Register = () => {
   const navigate = useNavigate();
